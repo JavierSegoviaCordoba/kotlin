@@ -480,12 +480,35 @@ allprojects {
         maven("https://packages.jetbrains.team/maven/p/ij/intellij-dependencies")
 
         mavenCentral()
-        maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/kotlin-dependencies")
-        maven("https://dl.google.com/dl/android/maven2")
+
+        maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/kotlin-dependencies") {
+            content {
+                includeModule("org.jetbrains.kotlin", "android-dx")
+                includeModule("org.jetbrains.dukat", "dukat")
+                includeModule("org.jetbrains.kotlin", "jcabi-aether")
+                includeModule("org.jetbrains.kotlin", "protobuf-lite")
+                includeModule("org.jetbrains.kotlin", "protobuf-relocated")
+                includeModule("org.jetbrains.kotlin", "kotlin-build-gradle-plugin")
+                includeModule("org.jetbrains.kotlinx", "kotlinx-metadata-klib")
+            }
+        }
+
+        maven("https://dl.google.com/dl/android/maven2") {
+            content {
+                includeGroup("com.android.tools")
+                includeGroup("com.android.tools.build")
+            }
+        }
 
         maven("https://download.jetbrains.com/teamcity-repository/")
 
-        jcenter()
+        @Suppress("DEPRECATION")
+        jcenter {
+            content {
+                includeGroup("net.rubygrapefruit")
+                includeVersionByRegex("io\\.ktor", ".+", "1\\.1\\.5")
+            }
+        }
     }
 }
 
