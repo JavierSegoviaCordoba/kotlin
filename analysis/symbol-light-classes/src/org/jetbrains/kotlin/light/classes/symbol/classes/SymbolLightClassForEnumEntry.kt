@@ -28,7 +28,7 @@ internal class SymbolLightClassForEnumEntry(
     manager: PsiManager
 ) : SymbolLightClassBase(manager), PsiEnumConstantInitializer {
 
-    override fun getName(): String? = enumEntrySymbol.name.asString()
+    override fun getName(): String = enumEntrySymbol.name.asString()
 
     override fun getBaseClassType(): PsiClassType = enumConstant.type as PsiClassType //???TODO
 
@@ -63,12 +63,12 @@ internal class SymbolLightClassForEnumEntry(
         )
     }
 
-    override fun getModifierList(): PsiModifierList? = _modifierList
+    override fun getModifierList(): PsiModifierList = _modifierList
 
     override fun hasModifierProperty(name: String): Boolean =
         name == PsiModifier.PUBLIC || name == PsiModifier.STATIC || name == PsiModifier.FINAL
 
-    override fun getContainingClass(): PsiClass? = enumClass
+    override fun getContainingClass(): PsiClass = enumClass
 
     override fun isDeprecated(): Boolean = false
 
@@ -76,7 +76,7 @@ internal class SymbolLightClassForEnumEntry(
 
     override fun getTypeParameterList(): PsiTypeParameterList? = null
 
-    override fun getQualifiedName(): String? = "${enumConstant.containingClass.qualifiedName}.${enumConstant.name}"
+    override fun getQualifiedName(): String = "${enumConstant.containingClass.qualifiedName}.${enumConstant.name}"
 
     override fun isInterface(): Boolean = false
 
@@ -89,9 +89,8 @@ internal class SymbolLightClassForEnumEntry(
             enumEntrySymbol.returnType.asPsiType(this@SymbolLightClassForEnumEntry, KtTypeMappingMode.SUPER_TYPE) as? PsiClassType
                 ?: return@lazyPub null
 
-
         KotlinSuperTypeListBuilder(
-            kotlinOrigin = enumClass.kotlinOrigin?.getSuperTypeList(),
+            kotlinOrigin = enumClass.kotlinOrigin.getSuperTypeList(),
             manager = manager,
             language = language,
             role = PsiReferenceList.Role.EXTENDS_LIST
@@ -104,7 +103,7 @@ internal class SymbolLightClassForEnumEntry(
 
     override fun getImplementsList(): PsiReferenceList? = null
 
-    override fun getSuperClass(): PsiClass? = enumClass
+    override fun getSuperClass(): PsiClass = enumClass
 
     override fun getInterfaces(): Array<PsiClass> = PsiClass.EMPTY_ARRAY
 
@@ -112,7 +111,7 @@ internal class SymbolLightClassForEnumEntry(
 
     override fun getSuperTypes(): Array<PsiClassType> = PsiClassImplUtil.getSuperTypes(this)
 
-    override fun getParent(): PsiElement? = containingClass ?: containingFile
+    override fun getParent(): PsiElement? = containingClass
 
     override fun getScope(): PsiElement? = parent
 

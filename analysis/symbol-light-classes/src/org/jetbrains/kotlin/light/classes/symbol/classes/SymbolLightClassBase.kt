@@ -18,7 +18,6 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.CachedValueProvider
 import com.intellij.psi.util.PsiUtil
 import org.jetbrains.annotations.NonNls
-import org.jetbrains.kotlin.analysis.api.KtAnalysisSession
 import org.jetbrains.kotlin.analysis.providers.createProjectWideOutOfBlockModificationTracker
 import org.jetbrains.kotlin.asJava.classes.*
 import org.jetbrains.kotlin.asJava.toLightClass
@@ -28,10 +27,9 @@ import org.jetbrains.kotlin.light.classes.symbol.allowLightClassesOnEdt
 import org.jetbrains.kotlin.utils.addToStdlib.ifFalse
 import javax.swing.Icon
 
-context(KtAnalysisSession)
-abstract class SymbolLightClassBase protected constructor(
-    manager: PsiManager
-) : LightElement(manager, KotlinLanguage.INSTANCE), PsiClass, KtExtensibleLightClass {
+
+abstract class SymbolLightClassBase protected constructor(manager: PsiManager) :
+    LightElement(manager, KotlinLanguage.INSTANCE), PsiClass, KtExtensibleLightClass {
     private class SymbolLightClassesLazyCreator(private val project: Project) : KotlinClassInnerStuffCache.LazyCreator() {
         override fun <T : Any> get(initializer: () -> T, dependencies: List<Any>): Lazy<T> = object : Lazy<T> {
             private val cachedValue = PsiCachedValueImpl(PsiManager.getInstance(project)) {
@@ -50,6 +48,7 @@ abstract class SymbolLightClassBase protected constructor(
         }
     }
 
+    @Suppress("LeakingThis")
     private val myInnersCache = KotlinClassInnerStuffCache(
         myClass = this@SymbolLightClassBase,
         dependencies = listOf(manager.project.createProjectWideOutOfBlockModificationTracker()),
@@ -122,7 +121,7 @@ abstract class SymbolLightClassBase protected constructor(
     private fun PsiClass.hasSuper(
         baseClass: PsiClass,
         checkDeep: Boolean,
-        visitedSupers: MutableSet<PsiClass> = mutableSetOf<PsiClass>()
+        visitedSupers: MutableSet<PsiClass> = mutableSetOf()
     ): Boolean {
         visitedSupers.add(this)
         val notVisitedSupers = supers.filterNot { visitedSupers.contains(it) }
@@ -135,8 +134,7 @@ abstract class SymbolLightClassBase protected constructor(
 
     override fun getLanguage(): KotlinLanguage = KotlinLanguage.INSTANCE
 
-    override fun getPresentation(): ItemPresentation? =
-        ItemPresentationProviders.getItemPresentation(this)
+    override fun getPresentation(): ItemPresentation? = ItemPresentationProviders.getItemPresentation(this)
 
     abstract override fun equals(other: Any?): Boolean
 
@@ -144,18 +142,15 @@ abstract class SymbolLightClassBase protected constructor(
 
     override fun getContext(): PsiElement = parent
 
-    override fun isEquivalentTo(another: PsiElement?): Boolean =
-        PsiClassImplUtil.isClassEquivalentTo(this, another)
+    override fun isEquivalentTo(another: PsiElement?): Boolean = PsiClassImplUtil.isClassEquivalentTo(this, another)
 
     override fun getDocComment(): PsiDocComment? = null
 
     override fun hasTypeParameters(): Boolean = PsiImplUtil.hasTypeParameters(this)
 
-    override fun getExtendsListTypes(): Array<PsiClassType?> =
-        PsiClassImplUtil.getExtendsListTypes(this)
+    override fun getExtendsListTypes(): Array<PsiClassType?> = PsiClassImplUtil.getExtendsListTypes(this)
 
-    override fun getImplementsListTypes(): Array<PsiClassType?> =
-        PsiClassImplUtil.getImplementsListTypes(this)
+    override fun getImplementsListTypes(): Array<PsiClassType?> = PsiClassImplUtil.getImplementsListTypes(this)
 
     override fun findMethodBySignature(patternMethod: PsiMethod?, checkBases: Boolean): PsiMethod? =
         patternMethod?.let { PsiClassImplUtil.findMethodBySignature(this, it, checkBases) }
