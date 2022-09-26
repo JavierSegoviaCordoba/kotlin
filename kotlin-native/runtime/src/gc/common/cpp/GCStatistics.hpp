@@ -89,25 +89,25 @@ class GCHandle {
     uint64_t epoch_;
     explicit GCHandle(uint64_t epoch) : epoch_(epoch) {}
 
-    NO_EXTERNAL_CALLS_CHECK void threadRootSetCollected(mm::ThreadData& threadData, uint64_t threadLocalReferences, uint64_t stackReferences);
-    NO_EXTERNAL_CALLS_CHECK void globalRootSetCollected(uint64_t globalReferences, uint64_t stableReferences);
-    NO_EXTERNAL_CALLS_CHECK void heapUsageBefore(MemoryUsage usage);
-    NO_EXTERNAL_CALLS_CHECK void heapUsageAfter(MemoryUsage usage);
-    NO_EXTERNAL_CALLS_CHECK void extraObjectsUsageBefore(MemoryUsage usage);
-    NO_EXTERNAL_CALLS_CHECK void extraObjectsUsageAfter(MemoryUsage usage);
-    NO_EXTERNAL_CALLS_CHECK void marked(MemoryUsage usage);
+    void threadRootSetCollected(mm::ThreadData& threadData, uint64_t threadLocalReferences, uint64_t stackReferences);
+    void globalRootSetCollected(uint64_t globalReferences, uint64_t stableReferences);
+    void heapUsageBefore(MemoryUsage usage);
+    void heapUsageAfter(MemoryUsage usage);
+    void extraObjectsUsageBefore(MemoryUsage usage);
+    void extraObjectsUsageAfter(MemoryUsage usage);
+    void marked(MemoryUsage usage);
 
 public:
     static GCHandle create(uint64_t epoch);
     static GCHandle getByEpoch(uint64_t epoch);
 
     uint64_t getEpoch() { return epoch_; }
-    NO_EXTERNAL_CALLS_CHECK void finished();
-    NO_EXTERNAL_CALLS_CHECK void finalizersDone();
-    NO_EXTERNAL_CALLS_CHECK void finalizersScheduled(uint64_t finalizersCount);
-    NO_EXTERNAL_CALLS_CHECK void suspensionRequested();
-    NO_EXTERNAL_CALLS_CHECK void threadsAreSuspended();
-    NO_EXTERNAL_CALLS_CHECK void threadsAreResumed();
+    void finished();
+    void finalizersDone();
+    void finalizersScheduled(uint64_t finalizersCount);
+    void suspensionRequested();
+    void threadsAreSuspended();
+    void threadsAreResumed();
     GCSweepScope sweep() { return GCSweepScope(*this); }
     GCSweepExtraObjectsScope sweepExtraObjects() { return GCSweepExtraObjectsScope(*this); }
     GCGlobalRootSetScope collectGlobalRoots() { return GCGlobalRootSetScope(*this); }
