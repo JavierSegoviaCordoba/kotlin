@@ -76,6 +76,10 @@ touchFunction(Kotlin_mm_switchThreadStateRunnable)
 touchFunction(Kotlin_mm_safePointFunctionPrologue)
 touchFunction(Kotlin_mm_safePointWhileLoopBody)
 
+touchFunction(Kotlin_processObjectInMark)
+touchFunction(Kotlin_processArrayInMark)
+touchFunction(Kotlin_processFieldInMark)
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

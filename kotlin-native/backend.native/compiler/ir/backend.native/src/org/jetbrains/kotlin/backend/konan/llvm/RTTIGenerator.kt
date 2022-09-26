@@ -98,7 +98,8 @@ internal class RTTIGenerator(override val context: Context) : ContextUtils {
             flags: Int,
             classId: Int,
             writableTypeInfo: ConstPointer?,
-            associatedObjects: ConstPointer?) :
+            associatedObjects: ConstPointer?,
+            processObjectInMark: ConstPointer?) :
 
             Struct(
                     runtime.typeInfoType,
@@ -134,7 +135,9 @@ internal class RTTIGenerator(override val context: Context) : ContextUtils {
 
                     *listOfNotNull(writableTypeInfo).toTypedArray(),
 
-                    associatedObjects
+                    associatedObjects,
+
+                    processObjectInMark,
             )
 
     private fun kotlinStringLiteral(string: String?): ConstPointer = if (string == null) {
@@ -255,7 +258,8 @@ internal class RTTIGenerator(override val context: Context) : ContextUtils {
                 flagsFromClass(irClass) or reflectionInfo.reflectionFlags,
                 context.getLayoutBuilder(irClass).classId,
                 llvmDeclarations.writableTypeInfoGlobal?.pointer,
-                associatedObjects = genAssociatedObjects(irClass)
+                associatedObjects = genAssociatedObjects(irClass),
+                processObjectInMark = genProcessObjectInMark(irClass),
         )
 
         val typeInfoGlobalValue = if (!irClass.typeInfoHasVtableAttached) {
@@ -473,6 +477,11 @@ internal class RTTIGenerator(override val context: Context) : ContextUtils {
         )
     }
 
+    private fun genProcessObjectInMark(irClass: IrClass) = when {
+        irClass.symbol == context.ir.symbols.array -> constPointer(context.llvm.Kotlin_processArrayInMark.llvmValue)
+        else -> constPointer(context.llvm.Kotlin_processObjectInMark.llvmValue) // TODO: specialize for "small" objects
+    }
+
     // TODO: extract more code common with generate().
     fun generateSyntheticInterfaceImpl(
             irClass: IrClass,
@@ -545,7 +554,8 @@ internal class RTTIGenerator(override val context: Context) : ContextUtils {
                 flags = flagsFromClass(irClass) or (if (immutable) TF_IMMUTABLE else 0),
                 classId = typeHierarchyInfo.classIdLo,
                 writableTypeInfo = writableTypeInfo,
-                associatedObjects = null
+                associatedObjects = null,
+                processObjectInMark = genProcessObjectInMark(irClass),
               ), vtable)
 
         typeInfoWithVtableGlobal.setInitializer(typeInfoWithVtable)

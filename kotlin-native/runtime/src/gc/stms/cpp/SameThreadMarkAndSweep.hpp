@@ -110,6 +110,32 @@ private:
 
 namespace internal {
 
+struct MarkTraits {
+    using MarkQueue = gc::SameThreadMarkAndSweep::MarkQueue;
+
+    static bool isEmpty(const MarkQueue& queue) noexcept {
+        return queue.empty();
+    }
+
+    static void clear(MarkQueue& queue) noexcept {
+        queue.clear();
+    }
+
+    static ObjHeader* dequeue(MarkQueue& queue) noexcept {
+        auto& top = queue.front();
+        queue.pop_front();
+        auto node = mm::ObjectFactory<gc::SameThreadMarkAndSweep>::NodeRef::From(top);
+        return node->GetObjHeader();
+    }
+
+    static void enqueue(MarkQueue& queue, ObjHeader* object) noexcept {
+        auto& objectData = mm::ObjectFactory<gc::SameThreadMarkAndSweep>::NodeRef::From(object).ObjectData();
+        if (objectData.color() == gc::SameThreadMarkAndSweep::ObjectData::Color::kBlack) return;
+        objectData.setColor(gc::SameThreadMarkAndSweep::ObjectData::Color::kBlack);
+        queue.push_front(objectData);
+    }
+};
+
 SameThreadMarkAndSweep::SafepointFlag loadSafepointFlag() noexcept;
 
 } // namespace internal

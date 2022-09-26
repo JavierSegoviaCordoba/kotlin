@@ -22,6 +22,46 @@
 namespace kotlin {
 namespace gc {
 
+namespace internal {
+
+template <typename Traits>
+void processInMark(typename Traits::MarkQueue& markQueue, ObjHeader* object) noexcept {
+    object->type_info()->processObjectInMark(static_cast<void*>(&markQueue), object);
+}
+
+template <typename Traits>
+void processFieldInMark(void* state, ObjHeader* field) noexcept {
+    auto& markQueue = *static_cast<typename Traits::MarkQueue*>(state);
+    if (field->heap()) {
+        Traits::enqueue(markQueue, field);
+    }
+}
+
+template <typename Traits>
+void processObjectInMark(void* state, ObjHeader* object) noexcept {
+    auto* typeInfo = object->type_info();
+    RuntimeAssert(typeInfo != theArrayTypeInfo, "Must not be an array of objects");
+    for (int i = 0; i < typeInfo->objOffsetsCount_; ++i) {
+        auto* field = *reinterpret_cast<ObjHeader**>(reinterpret_cast<uintptr_t>(object) + typeInfo->objOffsets_[i]);
+        if (!field)
+            continue;
+        processFieldInMark<Traits>(state, field);
+    }
+}
+
+template <typename Traits>
+void processArrayInMark(void* state, ArrayHeader* array) noexcept {
+    RuntimeAssert(array->type_info() == theArrayTypeInfo, "Must be an array of objects");
+    for (uint32_t i = 0; i < array->count_; ++i) {
+        auto* field = *ArrayAddressOfElementAt(array, i);
+        if (!field)
+            continue;
+        processFieldInMark<Traits>(state, field);
+    }
+}
+
+} // namespace internal
+
 struct MarkStats {
     // How many objects are alive.
     size_t aliveHeapSet = 0;
@@ -51,11 +91,7 @@ MarkStats Mark(typename Traits::MarkQueue& markQueue) noexcept {
         stats.aliveHeapSet++;
         stats.aliveHeapSetBytes += mm::GetAllocatedHeapSize(top);
 
-        traverseReferredObjects(top, [&](ObjHeader* field) noexcept {
-            if (field->heap()) {
-                Traits::enqueue(markQueue, field);
-            }
-        });
+        internal::processInMark<Traits>(markQueue, top);
 
         if (auto* extraObjectData = mm::ExtraObjectData::Get(top)) {
             if (auto weakCounter = extraObjectData->GetWeakReferenceCounter()) {
@@ -130,12 +166,8 @@ void collectRootSetForThread(typename Traits::MarkQueue& markQueue, mm::ThreadDa
             if (object->heap()) {
                 Traits::enqueue(markQueue, object);
             } else {
-                traverseReferredObjects(object, [&](ObjHeader* field) noexcept {
-                    // Each permanent and stack object has own entry in the root set.
-                    if (field->heap()) {
-                        Traits::enqueue(markQueue, field);
-                    }
-                });
+                // Each permanent and stack object has own entry in the root set, so it's okay to only process objects in heap.
+                internal::processInMark<Traits>(markQueue, object);
                 RuntimeAssert(!object->has_meta_object(), "Non-heap object %p may not have an extra object data", object);
             }
             switch (value.source) {

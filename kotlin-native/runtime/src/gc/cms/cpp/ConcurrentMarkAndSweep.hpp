@@ -136,5 +136,32 @@ private:
     MarkingBehavior markingBehavior_;
 };
 
+namespace internal {
+struct MarkTraits {
+    using MarkQueue = gc::ConcurrentMarkAndSweep::MarkQueue;
+
+    static bool isEmpty(const MarkQueue& queue) noexcept {
+        return queue.empty();
+    }
+
+    static void clear(MarkQueue& queue) noexcept {
+        queue.clear();
+    }
+
+    static ObjHeader* dequeue(MarkQueue& queue) noexcept {
+        auto& top = queue.front();
+        queue.pop_front();
+        auto node = mm::ObjectFactory<gc::ConcurrentMarkAndSweep>::NodeRef::From(top);
+        return node->GetObjHeader();
+    }
+
+    static void enqueue(MarkQueue& queue, ObjHeader* object) noexcept {
+        auto& objectData = mm::ObjectFactory<gc::ConcurrentMarkAndSweep>::NodeRef::From(object).ObjectData();
+        if (!objectData.atomicSetToBlack()) return;
+        queue.push_front(objectData);
+    }
+};
+}
+
 } // namespace gc
 } // namespace kotlin

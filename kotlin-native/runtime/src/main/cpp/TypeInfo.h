@@ -132,16 +132,14 @@ struct TypeInfo {
     // Null-terminated array.
     const AssociatedObjectTableRecord* associatedObjects;
 
+    void (*processObjectInMark)(void* state, ObjHeader* object);
+
     // vtable starts just after declared contents of the TypeInfo:
     // void* const vtable_[];
 #ifdef __cplusplus
-    inline VTableElement const* vtable() const {
-      return reinterpret_cast<VTableElement const*>(this + 1);
-    }
+    inline VTableElement const* vtable() const { return reinterpret_cast<VTableElement const*>(this + 1); }
 
-    inline VTableElement* vtable() {
-      return reinterpret_cast<VTableElement*>(this + 1);
-    }
+    inline VTableElement* vtable() { return reinterpret_cast<VTableElement*>(this + 1); }
 
     inline bool IsArray() const { return instanceSize_ < 0; }
 

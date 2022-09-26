@@ -661,10 +661,12 @@ static const TypeInfo* createTypeInfo(
     if ((superType->flags_ & TF_IMMUTABLE) != 0) {
       result->flags_ |= TF_IMMUTABLE;
     }
+    result->processObjectInMark = superType->processObjectInMark;
   } else {
     result->instanceSize_ = fieldsInfo->instanceSize_;
     result->objOffsets_ = fieldsInfo->objOffsets_;
     result->objOffsetsCount_ = fieldsInfo->objOffsetsCount_;
+    result->processObjectInMark = fieldsInfo->processObjectInMark;
   }
 
   result->classId_ = superType->classId_;
@@ -701,6 +703,7 @@ static const TypeInfo* createTypeInfo(
   result->writableInfo_ = (WritableTypeInfo*)std_support::calloc(1, sizeof(WritableTypeInfo));
 
   for (size_t i = 0; i < vtable.size(); ++i) result->vtable()[i] = vtable[i];
+
 
   return result;
 }

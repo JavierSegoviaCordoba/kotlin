@@ -523,6 +523,10 @@ internal class Llvm(val context: Context, val llvmModule: LLVMModuleRef) : Runti
     val Kotlin_mm_safePointFunctionPrologue by lazyRtFunction
     val Kotlin_mm_safePointWhileLoopBody by lazyRtFunction
 
+    val Kotlin_processObjectInMark by lazyRtFunction
+    val Kotlin_processArrayInMark by lazyRtFunction
+    val Kotlin_processFieldInMark by lazyRtFunction
+
     val tlsMode by lazy {
         when (target) {
             KonanTarget.WASM32,
