@@ -7307,6 +7307,12 @@ public class FirJsTestGenerated extends AbstractFirJsTest {
         public void testKeepOverriddenMethod() throws Exception {
             runTest("js/js.translator/testData/box/keep/keepOverriddenMethod.kt");
         }
+
+        @Test
+        @TestMetadata("keepVarAnonymousClass.kt")
+        public void testKeepVarAnonymousClass() throws Exception {
+            runTest("js/js.translator/testData/box/keep/keepVarAnonymousClass.kt");
+        }
     }
 
     @Nested
