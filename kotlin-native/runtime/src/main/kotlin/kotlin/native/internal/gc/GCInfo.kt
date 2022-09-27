@@ -13,34 +13,96 @@ import kotlin.time.Duration.Companion.nanoseconds
 import kotlinx.cinterop.*
 import kotlin.system.*
 
-
+/**
+ * This class represents statistics of memory usage in one memory pool.
+ *
+ * @property objectsCount The number of allocated objects.
+ * @property totalObjectsSizeBytes The total size of allocated objects. System allocator overhead is not included,
+ *                                 so it can not perfectly match the value received by os tools.
+ *                                 All alignment and auxiliary object headers are included.
+ */
 @ExperimentalStdlibApi
-data class MemoryUsage(
+class MemoryUsage(
         val objectsCount: Long,
         val totalObjectsSizeBytes: Long,
 )
 
 /**
- * Number of nodes in root set for garbage collector run, separated by root set pools.
- * This nodes are assumed to be used, even if there are no references for it.
+ * This class represents statistics of the root set for garbage collector run, separated by root set pools.
+ * These nodes are assumed to be used, even if there are no references for them.
  *
- * @property threadLocalReferences Number of objects in global variables with @ThreadLocal annotation.
+ * @property threadLocalReferences The number of objects in global variables with @ThreadLocal annotation.
  *                                 Object is counted for each thread it was initialized.
- * @property stackReferences Number of objects referenced from stack of any thread.
- *                            This are function local variables, and different temporary values, as function call
- *                            arguments and return values. They would be automatically removed from root set,
- *                            when function call is finished.
- * @property globalReferences Number of objects in global variables. Object is counted only if variable is initialized.
- * @property stableReferences Number of objects referenced by [kotlinx.cinterop.StableRef]. It includes both explicit usages
- *                            of this API, and internal usages, e.g. indside interops and Worker API.
+ * @property stackReferences The number of objects referenced from the stack of any thread.
+ *                           These are function local variables and different temporary values, as function call arguments and
+ *                           return values. They would be automatically removed from the root set when a corresponding function
+ *                           call is finished.
+ * @property globalReferences The number of objects in global variables. The object is counted only if the variable is initialized.
+ * @property stableReferences The number of objects referenced by [kotlinx.cinterop.StableRef]. It includes both explicit usage
+ *                            of this API, and internal usages, e.g. inside interop and Worker API.
  */
 @ExperimentalStdlibApi
-data class RootSetStatistics(
+class RootSetStatistics(
         val threadLocalReferences: Long,
         val stackReferences: Long,
         val globalReferences: Long,
         val stableReferences: Long
 )
+
+/**
+ * This class represents statistics about the single run of the garbage collector.
+ * It is supposed to be used for testing and debugging purposes only.
+ * Not all values can be available for all garbage collector implementations.
+ *
+ * @property epoch ID of garbage collector run.
+ * @property startTimeNs Time, when garbage collector run is started, meausered by [kotlin.system.getTimeNanos].
+ * @property endTimeNs Time, when garbage collector run is ended, measured by [kotlin.system.getTimeNanos].
+ *                     After this point, most of the memory is reclaimed, and a new garbage collector run can start.
+ * @property duration Difference between [endTimeNs] and [startTimeNs]. This is the best estimation of how long was this garbage collector run was.
+ * @property pauseStartTimeNs Time, when mutator threads are suspended, mesured by [kotlin.system.getTimeNanos].
+ * @property pauseEndTimeNs Time, when mutator threads are unsuspended, mesured by [kotlin.system.getTimeNanos].
+ * @property pauseDuration Difference between [pauseEndTimeNs] and [pauseStartTimeNs]. This is the best estimation of how long no application
+ *           operations can happen because of the garbage collector run.
+ * @property finilisersDoneTimeNs Time, when all memory is reclaimed, measured by [kotlin.system.getTimeNanos].
+ *                                If null, memory reclaiming is still in progress.
+ * @property durationWithFinalizers Difference between [finilisersDoneTimeNs] and [startTimeNs].
+ *                                  This is the best estimation of how long memory can still be not reclaimed after
+ *                                  the garbage collector starts.
+ * @property rootSet The number of objects in each root set pool. Check [RootSetStatistics] doc for details.
+ * @property memoryUsageAfter Memory usage at the start of garbage collector run, separated by memory pools.
+ *                            The set of memory pools depends on the collector implementation.
+ * @property memoryUsageBefore Memory usage at the end of garbage collector run, separated by memory pools.
+ *                            The set of memory pools depends on the collector implementation.
+ */
+@ExperimentalStdlibApi
+class GCInfo(
+        val epoch: Long,
+        val startTimeNs: Long,
+        val endTimeNs: Long?,
+        val pauseStartTimeNs: Long?,
+        val pauseEndTimeNs: Long?,
+        val finilisersDoneTimeNs: Long?,
+        val rootSet: RootSetStatistics?,
+        val memoryUsageBefore: Map<String, MemoryUsage>?,
+        val memoryUsageAfter: Map<String, MemoryUsage>?,
+) {
+    val duration: Duration?
+        get() = endTimeNs?.let { (it - startTimeNs).nanoseconds }
+    val pauseDuration: Duration?
+        get() = if (pauseEndTimeNs != null && pauseStartTimeNs != null) (pauseEndTimeNs - pauseStartTimeNs).nanoseconds else null
+    val durationWithFinalizers: Duration?
+        get() = finilisersDoneTimeNs?.let { (it - startTimeNs).nanoseconds }
+
+    internal companion object {
+        val lastGCInfo: GCInfo?
+            get() = getGcInfo(0)
+        val runningGCInfo: GCInfo?
+            get() = getGcInfo(1)
+
+        private fun getGcInfo(id: Int) = GCInfoBuilder().apply { fill(id) }.build();
+    }
+}
+
 
 @ExperimentalStdlibApi
 private class GCInfoBuilder() {
@@ -115,60 +177,18 @@ private class GCInfoBuilder() {
         return if (epoch == null || startTimeNs == null)
             null
         else GCInfo(
-                epoch!!, startTimeNs!!, endTimeNs, pauseStartTimeNs, pauseEndTimeNs, finalizersDoneTimeNs, rootSet, memoryUsageBefore?.toMap(), memoryUsageAfter?.toMap()
+                epoch!!,
+                startTimeNs!!,
+                endTimeNs,
+                pauseStartTimeNs,
+                pauseEndTimeNs,
+                finalizersDoneTimeNs,
+                rootSet,
+                memoryUsageBefore?.toMap(),
+                memoryUsageAfter?.toMap()
         )
     }
 
     @GCUnsafeCall("Kotlin_Internal_GC_GCInfoBuilder_Fill")
     external fun fill(id: Int)
-}
-
-/**
- * This is class representing statistics about one run of garbage collector.
- * It is supposed to be used for testing and debug purposes only. Not all values can be availiable for all gc implementations.
- *
- * @property epoch  ID of gc run
- * @property startTimeNs Time, when gc run is started, meausered by [kotlin.system.getTimeNanos]
- * @property endTimeNs Time, when gc run is ended, measured by [kotlin.system.getTimeNanos]. After this point, most of memory is reclaimed,
- *                   and new GC run can start.
- * @property duration Difference between [endTimeNs] and [startTimeNs]. This is best estimation of how long is gc run.
- * @property pauseStartTimeNs Time, when mutator threads are suspended, mesured by [kotlin.system.getTimeNanos].
- * @property pauseEndTimeNs Time, when mutator threads are unsuspended, mesured by [kotlin.system.getTimeNanos].
- * @property pauseDuration Difference between [pauseEndTimeNs] and [pauseStartTimeNs]. This is best estimation of how long no application
- *           operations can happen because of gc run.
- * @property finilisersDoneTimeNs Time, when all memory is reclaimed, measured by [kotlin.system.getTimeNanos].
- *           If null, memory reclaiming is still in progress.
- * @property durationWithFinalizers Difference between [finilisersDoneTimeNs] and [startTimeNs].
- *           This is best estimation of how long memory can stay not reclaimed after gc start.
- * @property rootSet Number of objects in each rootSet pool. Check [RootSetStatistics] doc for details.
- * @property memoryUsageAfter Memory usage at start of gc run, separated by memory pools. Set of memory pools depends on collector.
- * @property memoryUsageBefore Memory usage at end of gc run, excluding all memory scheduled to reclaim, separated by memory pools. Set of memory pools depends on collector.
- */
-@ExperimentalStdlibApi
-data class GCInfo(
-        val epoch: Long,
-        val startTimeNs: Long, // time since process start
-        val endTimeNs: Long?,
-        val pauseStartTimeNs: Long?,
-        val pauseEndTimeNs: Long?,
-        val finilisersDoneTimeNs: Long?,
-        val rootSet: RootSetStatistics?,
-        val memoryUsageBefore: Map<String, MemoryUsage>?, // key is memory pool, probably only "heap" now
-        val memoryUsageAfter: Map<String, MemoryUsage>?,
-) {
-    val duration: Duration?
-        get() = endTimeNs?.let { (it - startTimeNs).nanoseconds }
-    val pauseDuration: Duration?
-        get() = if (pauseEndTimeNs != null && pauseStartTimeNs != null) (pauseEndTimeNs - pauseStartTimeNs).nanoseconds else null
-    val durationWithFinalizers: Duration?
-        get() = finilisersDoneTimeNs?.let { (it - startTimeNs).nanoseconds }
-
-    internal companion object {
-        val lastGCInfo: GCInfo?
-            get() = getGcInfo(0)
-        val runningGCInfo: GCInfo?
-            get() = getGcInfo(1)
-
-        private fun getGcInfo(id: Int) = GCInfoBuilder().apply { fill(id) }.build();
-    }
 }
