@@ -249,7 +249,9 @@ private fun processConstructors(
 
                     val outerType = bodyResolveComponents.outerClassManager.outerType(type)
 
-                    if (basicScope != null) {
+                    if (basicScope != null &&
+                        (matchedSymbol.fir.typeParameters.isNotEmpty() || outerType != null || type.typeArguments.isNotEmpty())
+                    ) {
                         TypeAliasConstructorsSubstitutingScope(
                             matchedSymbol,
                             basicScope,
@@ -319,7 +321,7 @@ private class TypeAliasConstructorsSubstitutingScope(
 
                 }.apply {
                     originalConstructorIfTypeAlias = originalConstructorSymbol.fir
-                    typeAliasSymbol = this@TypeAliasConstructorsSubstitutingScope.typeAliasSymbol
+//                    typeAliasSymbol = this@TypeAliasConstructorsSubstitutingScope.typeAliasSymbol
                 }.symbol
             )
         }
