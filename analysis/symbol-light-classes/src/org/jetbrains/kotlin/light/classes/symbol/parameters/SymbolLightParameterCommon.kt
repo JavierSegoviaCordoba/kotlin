@@ -17,7 +17,7 @@ import org.jetbrains.kotlin.light.classes.symbol.methods.SymbolLightMethodBase
 import org.jetbrains.kotlin.light.classes.symbol.nonExistentType
 import org.jetbrains.kotlin.psi.KtParameter
 
-context(KtAnalysisSession)
+context(KtAnalysisSession) // TODO(dimonchik0036)
 internal abstract class SymbolLightParameterCommon(
     private val parameterSymbol: KtValueParameterSymbol,
     private val containingMethod: SymbolLightMethodBase

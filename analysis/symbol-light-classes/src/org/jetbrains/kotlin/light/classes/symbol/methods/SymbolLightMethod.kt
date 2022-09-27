@@ -21,7 +21,7 @@ import org.jetbrains.kotlin.light.classes.symbol.parameters.SymbolLightSuspendCo
 import org.jetbrains.kotlin.psi.KtDeclaration
 import java.util.*
 
-context(KtAnalysisSession)
+context(KtAnalysisSession) // TODO(dimonchik0036)
 internal abstract class SymbolLightMethod(
     private val functionSymbol: KtFunctionLikeSymbol,
     lightMemberOrigin: LightMemberOrigin?,

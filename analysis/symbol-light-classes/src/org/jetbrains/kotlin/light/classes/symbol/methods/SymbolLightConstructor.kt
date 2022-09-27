@@ -20,7 +20,7 @@ import org.jetbrains.kotlin.light.classes.symbol.modifierLists.SymbolLightMember
 import org.jetbrains.kotlin.light.classes.symbol.toPsiVisibilityForMember
 import java.util.*
 
-context(KtAnalysisSession)
+context(KtAnalysisSession) // TODO(dimonchik0036)
 internal class SymbolLightConstructor(
     private val constructorSymbol: KtConstructorSymbol,
     lightMemberOrigin: LightMemberOrigin?,

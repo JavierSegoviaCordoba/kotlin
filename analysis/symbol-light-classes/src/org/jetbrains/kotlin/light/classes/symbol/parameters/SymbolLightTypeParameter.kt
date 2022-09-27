@@ -32,7 +32,7 @@ import org.jetbrains.kotlin.name.StandardClassIds
 import org.jetbrains.kotlin.psi.KtTypeParameter
 import org.jetbrains.kotlin.psi.psiUtil.startOffset
 
-context(KtAnalysisSession)
+context(KtAnalysisSession) // TODO(dimonchik0036)
 internal class SymbolLightTypeParameter(
     private val parent: SymbolLightTypeParameterList,
     private val index: Int,

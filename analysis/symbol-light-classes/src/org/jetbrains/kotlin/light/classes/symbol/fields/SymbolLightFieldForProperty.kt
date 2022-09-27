@@ -27,7 +27,7 @@ import org.jetbrains.kotlin.name.JvmNames.VOLATILE_ANNOTATION_CLASS_ID
 import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.kotlin.psi.KtProperty
 
-context(KtAnalysisSession)
+context(KtAnalysisSession) // TODO(dimonchik0036)
 internal class SymbolLightFieldForProperty(
     private val propertySymbol: KtPropertySymbol,
     private val fieldName: String,

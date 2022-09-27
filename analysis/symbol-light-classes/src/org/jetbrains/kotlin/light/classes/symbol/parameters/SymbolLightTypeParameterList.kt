@@ -14,7 +14,7 @@ import org.jetbrains.kotlin.asJava.classes.lazyPub
 import org.jetbrains.kotlin.idea.KotlinLanguage
 import org.jetbrains.kotlin.light.classes.symbol.basicIsEquivalentTo
 
-context(KtAnalysisSession)
+context(KtAnalysisSession) // TODO(dimonchik0036)
 internal class SymbolLightTypeParameterList(
     internal val owner: PsiTypeParameterListOwner,
     private val symbolWithTypeParameterList: KtSymbolWithTypeParameters,

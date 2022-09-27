@@ -24,7 +24,7 @@ import org.jetbrains.kotlin.light.classes.symbol.nonExistentType
 import org.jetbrains.kotlin.name.StandardClassIds
 import org.jetbrains.kotlin.psi.KtParameter
 
-context(KtAnalysisSession)
+context(KtAnalysisSession) // TODO(dimonchik0036)
 internal class SymbolLightSuspendContinuationParameter(
     private val functionSymbol: KtFunctionSymbol,
     private val containingMethod: SymbolLightMethodBase,

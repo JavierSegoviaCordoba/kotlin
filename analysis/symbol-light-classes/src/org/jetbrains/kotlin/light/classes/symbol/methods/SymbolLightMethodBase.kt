@@ -32,7 +32,7 @@ import org.jetbrains.kotlin.light.classes.symbol.classes.SymbolLightClassBase
 import org.jetbrains.kotlin.light.classes.symbol.tryGetEffectiveVisibility
 import org.jetbrains.kotlin.utils.addToStdlib.ifTrue
 
-context(KtAnalysisSession)
+context(KtAnalysisSession) // TODO(dimonchik0036)
 internal abstract class SymbolLightMethodBase(
     lightMemberOrigin: LightMemberOrigin?,
     containingClass: KtLightClass,

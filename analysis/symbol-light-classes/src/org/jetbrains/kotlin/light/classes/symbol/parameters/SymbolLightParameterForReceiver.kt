@@ -26,7 +26,7 @@ import org.jetbrains.kotlin.light.classes.symbol.nonExistentType
 import org.jetbrains.kotlin.light.classes.symbol.nullabilityType
 import org.jetbrains.kotlin.psi.KtParameter
 
-context(KtAnalysisSession)
+context(KtAnalysisSession) // TODO(dimonchik0036)
 internal class SymbolLightParameterForReceiver private constructor(
     private val receiverType: KtType,
     private val context: KtSymbol,

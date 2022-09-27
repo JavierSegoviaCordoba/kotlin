@@ -23,7 +23,7 @@ import org.jetbrains.kotlin.name.JvmNames.SYNCHRONIZED_ANNOTATION_CLASS_ID
 import org.jetbrains.kotlin.utils.addToStdlib.ifTrue
 import java.util.*
 
-context(KtAnalysisSession)
+context(KtAnalysisSession) // TODO(dimonchik0036)
 internal class SymbolLightSimpleMethod(
     private val functionSymbol: KtFunctionSymbol,
     lightMemberOrigin: LightMemberOrigin?,

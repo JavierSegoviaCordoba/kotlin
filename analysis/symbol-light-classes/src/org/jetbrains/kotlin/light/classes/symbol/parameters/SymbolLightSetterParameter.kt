@@ -18,7 +18,7 @@ import org.jetbrains.kotlin.light.classes.symbol.annotations.computeAnnotations
 import org.jetbrains.kotlin.light.classes.symbol.methods.SymbolLightMethodBase
 import org.jetbrains.kotlin.light.classes.symbol.modifierLists.SymbolLightClassModifierList
 
-context(KtAnalysisSession)
+context(KtAnalysisSession) // TODO(dimonchik0036)
 internal class SymbolLightSetterParameter(
     private val containingPropertySymbol: KtPropertySymbol,
     private val parameterSymbol: KtValueParameterSymbol,

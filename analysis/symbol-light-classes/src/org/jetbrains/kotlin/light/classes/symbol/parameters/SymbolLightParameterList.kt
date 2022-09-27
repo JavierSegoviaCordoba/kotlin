@@ -17,7 +17,7 @@ import org.jetbrains.kotlin.light.classes.symbol.methods.SymbolLightMethodBase
 import org.jetbrains.kotlin.psi.KtFunction
 import org.jetbrains.kotlin.psi.KtParameterList
 
-context(KtAnalysisSession)
+context(KtAnalysisSession) // TODO(dimonchik0036)
 internal class SymbolLightParameterList(
     private val parent: SymbolLightMethodBase,
     private val callableSymbol: KtCallableSymbol?,

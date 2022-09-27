@@ -11,7 +11,10 @@ import org.jetbrains.kotlin.analysis.api.KtConstantInitializerValue
 import org.jetbrains.kotlin.analysis.api.KtConstantValueForAnnotation
 import org.jetbrains.kotlin.analysis.api.KtNonConstantInitializerValue
 import org.jetbrains.kotlin.analysis.api.lifetime.isValid
-import org.jetbrains.kotlin.analysis.api.symbols.*
+import org.jetbrains.kotlin.analysis.api.symbols.KtPropertyAccessorSymbol
+import org.jetbrains.kotlin.analysis.api.symbols.KtPropertyGetterSymbol
+import org.jetbrains.kotlin.analysis.api.symbols.KtPropertySetterSymbol
+import org.jetbrains.kotlin.analysis.api.symbols.KtPropertySymbol
 import org.jetbrains.kotlin.analysis.api.types.KtTypeMappingMode
 import org.jetbrains.kotlin.asJava.builder.LightMemberOrigin
 import org.jetbrains.kotlin.asJava.classes.METHOD_INDEX_FOR_GETTER
@@ -34,7 +37,7 @@ import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.kotlin.psi.KtParameter
 import org.jetbrains.kotlin.utils.addToStdlib.ifTrue
 
-context(KtAnalysisSession)
+context(KtAnalysisSession) // TODO(dimonchik0036)
 internal class SymbolLightAccessorMethod(
     private val propertyAccessorSymbol: KtPropertyAccessorSymbol,
     private val containingPropertySymbol: KtPropertySymbol,

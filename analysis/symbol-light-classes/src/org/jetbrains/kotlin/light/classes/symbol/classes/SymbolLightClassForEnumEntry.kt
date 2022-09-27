@@ -20,7 +20,7 @@ import org.jetbrains.kotlin.light.classes.symbol.modifierLists.SymbolLightClassM
 import org.jetbrains.kotlin.load.java.structure.LightClassOriginKind
 import org.jetbrains.kotlin.psi.KtClassOrObject
 
-context(KtAnalysisSession)
+context(KtAnalysisSession) // TODO(dimonchik0036)
 internal class SymbolLightClassForEnumEntry(
     private val enumEntrySymbol: KtEnumEntrySymbol,
     private val enumConstant: SymbolLightFieldForEnumEntry,
