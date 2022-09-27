@@ -28,7 +28,9 @@ abstract class AbstractIncrementalJsJpsTest : AbstractIncrementalJpsTest() {
     override fun overrideModuleSettings() {
         myProject.modules.forEach {
             val facet = KotlinFacetSettings()
-            facet.compilerArguments = K2JSCompilerArguments()
+            facet.compilerArguments = K2JSCompilerArguments().apply {
+                useDeprecatedLegacyCompiler = true
+            }
             facet.targetPlatform = JsPlatforms.defaultJsPlatform
 
             it.container.setChild(
