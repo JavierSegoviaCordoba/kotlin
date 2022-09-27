@@ -138,7 +138,7 @@ bool gc::SameThreadMarkAndSweep::PerformFullGC() noexcept {
         return false;
     }
     gSafepointFlag = SafepointFlag::kNeedsSuspend;
-    auto gcHandle = GCHandle::create(epoch_);
+    auto gcHandle = GCHandle::create(epoch_++);
     gcHandle.suspensionRequested();
 
     mm::ObjectFactory<gc::SameThreadMarkAndSweep>::FinalizerQueue finalizerQueue;
@@ -166,7 +166,6 @@ bool gc::SameThreadMarkAndSweep::PerformFullGC() noexcept {
         gcHandle.threadsAreResumed();
         gcHandle.finalizersScheduled(finalizerQueue.size());
         gcHandle.finished();
-        ++epoch_;
     }
 
     // Finalizers are run after threads are resumed, because finalizers may request GC themselves, which would

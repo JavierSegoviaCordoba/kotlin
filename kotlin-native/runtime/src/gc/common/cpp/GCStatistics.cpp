@@ -118,6 +118,12 @@ extern "C" void Kotlin_Internal_GC_GCInfoBuilder_Fill(KRef builder, int id) {
 namespace kotlin::gc {
 GCHandle GCHandle::create(uint64_t epoch) {
     std::lock_guard guard(lock);
+    RuntimeAssert(statByEpoch(epoch) == nullptr, "Starting epoch, which already existed");
+    if (current.epoch) {
+        last = current;
+        current = {};
+        RuntimeLogWarning({kTagGC}, "Starting new GC epoch, while previous is not finished\n");
+    }
     current.epoch = static_cast<KLong>(epoch);
     current.startTime = static_cast<KLong>(konan::getTimeNanos());
     if (last.endTime) {
@@ -264,8 +270,14 @@ void GCHandle::heapUsageAfter(MemoryUsage usage) {
                     stat->memoryUsageAfter.heap->objectsCount, stat->memoryUsageAfter.heap->totalObjectsSize);
         }
         if (stat->markStats) {
-            RuntimeAssert(stat->markStats->objectsCount == usage.objectsCount, "Mismatch in alive heap set statistics");
-            RuntimeAssert(stat->markStats->totalObjectsSize == usage.totalObjectsSize, "Mismatch in alive heap set statistics");
+            RuntimeAssert(
+                    stat->markStats->objectsCount == usage.objectsCount,
+                    "Mismatch in statistics: marked %" PRId64 " objects, while %" PRId64 " is alive after sweep",
+                    stat->markStats->objectsCount, usage.objectsCount);
+            RuntimeAssert(
+                    stat->markStats->totalObjectsSize == usage.totalObjectsSize,
+                    "Mismatch in statistics: total marked size is %" PRId64 " bytes, while %" PRId64 " bytes is alive after sweep",
+                    stat->markStats->totalObjectsSize, usage.totalObjectsSize);
         }
     }
 }

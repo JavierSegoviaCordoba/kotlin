@@ -170,7 +170,7 @@ public:
         std_support::vector<ObjHeader*> objects;
         for (auto& object : graySet) ScopedMarkTraits::enqueue(objects, object.get().GetObjHeader());
         auto handle = gc::GCHandle::create(0);
-        gc::Mark<ScopedMarkTraits>(handle.mark(), objects);
+        gc::Mark<ScopedMarkTraits>(handle, objects);
         return handle.getMarked();
     }
 
