@@ -7285,6 +7285,12 @@ public class FirJsTestGenerated extends AbstractFirJsTest {
         }
 
         @Test
+        @TestMetadata("keepInterface.kt")
+        public void testKeepInterface() throws Exception {
+            runTest("js/js.translator/testData/box/keep/keepInterface.kt");
+        }
+
+        @Test
         @TestMetadata("keepMethod.kt")
         public void testKeepMethod() throws Exception {
             runTest("js/js.translator/testData/box/keep/keepMethod.kt");
