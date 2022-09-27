@@ -1181,7 +1181,7 @@ TEST_P(ConcurrentMarkAndSweepTest, MutatorsCanMarkOwnLocals) {
 
     if (GetParam() == gc::ConcurrentMarkAndSweep::kMarkOwnStack) {
         mm::GlobalData::Instance().gc().impl().gc().WaitForThreadsReadyToMark();
-        mm::GlobalData::Instance().gc().impl().gc().CollectRootSetAndStartMarking(gc::GCHandle::create(0));
+        mm::GlobalData::Instance().gc().impl().gc().CollectRootSetAndStartMarking(gc::GCHandle::createFakeForTests());
     }
 
     for (int i = 0; i < kDefaultThreadCount; ++i) {

@@ -133,8 +133,14 @@ GCHandle GCHandle::create(uint64_t epoch) {
     }
     return getByEpoch(epoch);
 }
+GCHandle GCHandle::createFakeForTests() { return getByEpoch(std::numeric_limits<uint64_t>::max()); }
 GCHandle GCHandle::getByEpoch(uint64_t epoch) {
     return GCHandle{epoch};
+}
+void GCHandle::ClearForTests() {
+    std::lock_guard guard(lock);
+    current = {};
+    last = {};
 }
 void GCHandle::finished() {
     std::lock_guard guard(lock);

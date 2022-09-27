@@ -99,7 +99,9 @@ class GCHandle {
 
 public:
     static GCHandle create(uint64_t epoch);
+    static GCHandle createFakeForTests();
     static GCHandle getByEpoch(uint64_t epoch);
+    static void ClearForTests();
 
     uint64_t getEpoch() { return epoch_; }
     void finished();

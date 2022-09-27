@@ -6,6 +6,7 @@
 #include "GCImpl.hpp"
 
 #include "GC.hpp"
+#include "GCStatistics.hpp"
 #include "ThreadSuspension.hpp"
 #include "std_support/Memory.hpp"
 
@@ -94,6 +95,7 @@ gc::GCSchedulerConfig& gc::GC::gcSchedulerConfig() noexcept {
 void gc::GC::ClearForTests() noexcept {
     impl_->gc().StopFinalizerThreadIfRunning();
     impl_->objectFactory().ClearForTests();
+    GCHandle::ClearForTests();
 }
 
 void gc::GC::StartFinalizerThreadIfNeeded() noexcept {

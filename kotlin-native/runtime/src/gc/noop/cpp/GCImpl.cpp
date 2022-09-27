@@ -8,6 +8,7 @@
 #include "GC.hpp"
 #include "std_support/Memory.hpp"
 #include "GlobalData.hpp"
+#include "GCStatistics.hpp"
 
 using namespace kotlin;
 
@@ -81,6 +82,7 @@ gc::GCSchedulerConfig& gc::GC::gcSchedulerConfig() noexcept {
 
 void gc::GC::ClearForTests() noexcept {
     impl_->objectFactory().ClearForTests();
+    GCHandle::ClearForTests();
 }
 
 void gc::GC::StartFinalizerThreadIfNeeded() noexcept {}

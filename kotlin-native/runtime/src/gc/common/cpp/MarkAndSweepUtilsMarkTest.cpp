@@ -169,12 +169,16 @@ public:
     gc::MemoryUsage Mark(std::initializer_list<std::reference_wrapper<BaseObject>> graySet) {
         std_support::vector<ObjHeader*> objects;
         for (auto& object : graySet) ScopedMarkTraits::enqueue(objects, object.get().GetObjHeader());
-        auto handle = gc::GCHandle::create(0);
+        auto handle = gc::GCHandle::create(epoch_++);
         gc::Mark<ScopedMarkTraits>(handle, objects);
+        handle.finished();
         return handle.getMarked();
     }
 
+    ~MarkAndSweepUtilsMarkTest() { mm::GlobalData::Instance().gc().ClearForTests(); }
+
 private:
+    uint64_t epoch_ = 0;
     kotlin::ScopedMemoryInit memoryInit;
     ScopedMarkTraits markTraits_;
 };
