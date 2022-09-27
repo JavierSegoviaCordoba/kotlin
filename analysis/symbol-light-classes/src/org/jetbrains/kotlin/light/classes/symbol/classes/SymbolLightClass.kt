@@ -37,6 +37,7 @@ import org.jetbrains.kotlin.name.StandardClassIds
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtClassOrObject
 import org.jetbrains.kotlin.psi.KtDeclaration
+import org.jetbrains.kotlin.psi.KtEnumEntry
 import org.jetbrains.kotlin.resolve.DataClassResolver
 import org.jetbrains.kotlin.resolve.jvm.diagnostics.JvmDeclarationOriginKind
 import org.jetbrains.kotlin.util.OperatorNameConventions.EQUALS
@@ -281,7 +282,11 @@ internal open class SymbolLightClass(classOrObject: KtClassOrObject) : SymbolLig
         if (isEnum) {
             classOrObjectSymbol.getDeclaredMemberScope().getCallableSymbols()
                 .filterIsInstance<KtEnumEntrySymbol>()
-                .mapTo(result) { SymbolLightFieldForEnumEntry(it, this@SymbolLightClass, null) }
+                .mapNotNullTo(result) {
+                    val enumEntry = it.psi<KtEnumEntry>()
+                    val name = enumEntry.name ?: return@mapNotNullTo null
+                    SymbolLightFieldForEnumEntry(it.psi(), name, this@SymbolLightClass, null)
+                }
         }
     }
 
