@@ -71,8 +71,10 @@ class RootSetStatistics(
  * @property rootSet The number of objects in each root set pool. Check [RootSetStatistics] doc for details.
  * @property memoryUsageAfter Memory usage at the start of garbage collector run, separated by memory pools.
  *                            The set of memory pools depends on the collector implementation.
+ *                            Can be empty, of colelction is in progress.
  * @property memoryUsageBefore Memory usage at the end of garbage collector run, separated by memory pools.
  *                            The set of memory pools depends on the collector implementation.
+ *                            Can be empty, of colelction is in progress.
  */
 @ExperimentalStdlibApi
 class GCInfo(
@@ -83,8 +85,8 @@ class GCInfo(
         val pauseEndTimeNs: Long?,
         val finilisersDoneTimeNs: Long?,
         val rootSet: RootSetStatistics?,
-        val memoryUsageBefore: Map<String, MemoryUsage>?,
-        val memoryUsageAfter: Map<String, MemoryUsage>?,
+        val memoryUsageBefore: Map<String, MemoryUsage>,
+        val memoryUsageAfter: Map<String, MemoryUsage>,
 ) {
     val duration: Duration?
         get() = endTimeNs?.let { (it - startTimeNs).nanoseconds }
@@ -184,8 +186,8 @@ private class GCInfoBuilder() {
                 pauseEndTimeNs,
                 finalizersDoneTimeNs,
                 rootSet,
-                memoryUsageBefore?.toMap(),
-                memoryUsageAfter?.toMap()
+                memoryUsageBefore?.toMap() ?: emptyMap(),
+                memoryUsageAfter?.toMap() ?: emptyMap()
         )
     }
 
