@@ -234,9 +234,9 @@ abstract class KotlinJsProjectExtension(project: Project) :
             """
                 |
                 |==========
-                |The project using the Kotlin/JS Legacy compiler backend which is deprecated and will be removed in a future release.
+                |This project currently uses the Kotlin/JS Legacy compiler backend, which has been deprecated and will be removed in a future release.
                 |
-                |Please migrate the project to the new IR-based compiler (https://kotl.in/jsir)
+                |Please migrate the project to the new IR-based compiler (https://kotl.in/jsir).
                 |==========
                 |
             """.trimMargin()
@@ -245,9 +245,10 @@ abstract class KotlinJsProjectExtension(project: Project) :
             """
                 |
                 |==========
-                |The project is using Both mode which is using the Kotlin/JS Legacy compiler backend, which is deprecated and will be removed in a future release.
+                |This project currently uses Both mode, which requires the Kotlin/JS Legacy compiler backend.
+                |This backend has been deprecated and will be removed in a future release.
                 |
-                |Please migrate the project to the new IR-based compiler (https://kotl.in/jsir)
+                |Please migrate the project to the new IR-based compiler (https://kotl.in/jsir).
                 |==========
                 |
             """.trimMargin()
@@ -256,13 +257,11 @@ abstract class KotlinJsProjectExtension(project: Project) :
             """
                 |
                 |==========
-                |The project using the Kotlin/JS Legacy compiler backend which is deprecated and will be removed in a future release.
-                |
-                |Please migrate the project to the new IR-based compiler (https://kotl.in/jsir), via:
-                |- kotlin.js.compiler=ir in your gradle.properties
-                |- js(IR) { ... } in your build file.
-                |
-                |You can continue using the deprecated legacy compiler in the current version by specify a compiler explicitly
+                |This project currently uses the Kotlin/JS Legacy compiler backend, which has been deprecated and will be removed in a future release.
+                |Please migrate the project to the new IR-based compiler (https://kotl.in/jsir) by adding:
+                |- kotlin.js.compiler=ir to your gradle.properties file.
+                |- js(IR) { ... } to your build file.
+                |You can continue to use the deprecated legacy compiler in the current version of the toolchain by specifying it explicitly.
                 |==========
                 |
             """.trimMargin()

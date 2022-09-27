@@ -187,13 +187,12 @@ public class K2JSCompiler extends CLICompiler<K2JSCompilerArguments> {
         }
 
         String deprecatedMessage = "==========\n" +
-                                   "The project is using the Kotlin/JS Legacy compiler backend which is deprecated and will be removed in a future release.\n" +
-                                   "\n" +
-                                   "Your build tool will not be supported for the IR-based compiler, so you need to migrate to Gradle.\n" +
+                                   "This project currently uses the Kotlin/JS Legacy compiler backend, which has been deprecated and will be removed in a future release.\n" +
                                    "\n" +
                                    "Please migrate your project to the new IR-based compiler (https://kotl.in/jsir).\n" +
+                                   "Because your build tool will not support the new Kotlin/JS compiler, you will also need to migrate to Gradle.\n" +
                                    "\n" +
-                                   "You can continue using the deprecated legacy compiler in the current version by providing the compiler option -Xuse-deprecated-legacy-compiler.\n" +
+                                   "You can continue to use the deprecated legacy compiler in the current version of the toolchain by providing the compiler option -Xuse-deprecated-legacy-compiler.\n" +
                                    "==========";
 
         if (!arguments.getUseDeprecatedLegacyCompiler()) {
